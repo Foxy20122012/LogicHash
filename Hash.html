@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tabla de Símbolos</title>
+</head>
+<body>
+  <h1>Tabla de Símbolos</h1>
+  
+  <textarea id="entrada" rows="4" cols="50" placeholder="Ingrese la entrada"></textarea>
+  <br>
+  <button onclick="procesarEntrada()">Procesar</button>
+  
+  <h2>Símbolos encontrados:</h2>
+  <ul id="simbolos"></ul>
+  
+  <h2>Buscar símbolo:</h2>
+  <input type="text" id="buscarNombre" placeholder="Ingrese el nombre del símbolo">
+  <button onclick="buscarSimbolo()">Buscar</button>
+  <br>
+  <pre id="propiedades"></pre>
+  
+  <script>
+    // Definición de la clase TablaDeSimbolos
+    class TablaDeSimbolos {
+      constructor() {
+        this.tabla = {}; // Tabla hash para almacenar los símbolos
+        this.registroActual = 1; // Variable para llevar el número de registro actual
+      }
+  
+      // Función para insertar un símbolo en la tabla
+      insert(nombre, tipo, ambito) {
+        // Creamos un objeto con los campos del símbolo
+        const simbolo = {
+          numeroRegistro: this.registroActual,
+          tipo: tipo,
+          ambito: ambito,
+        };
+  
+        // Incrementamos el número de registro actual
+        this.registroActual++;
+  
+        // Insertamos el símbolo en la tabla usando el nombre como clave
+        this.tabla[nombre] = simbolo;
+      }
+  
+      // Función para buscar un símbolo por su nombre
+      lookup(nombre) {
+        // Verificamos si el símbolo está presente en la tabla
+        if (this.tabla.hasOwnProperty(nombre)) {
+          return this.tabla[nombre]; // Retornamos el símbolo encontrado
+        } else {
+          return null; // Retornamos null si el símbolo no se encuentra
+        }
+      }
+  
+      // Función para mostrar la tabla de símbolos completa
+      mostrarTabla() {
+        const tablaElement = document.createElement("table");
+  
+        const thead = document.createElement("thead");
+        const headerRow = document.createElement("tr");
+        headerRow.innerHTML = "<th>Nombre</th><th>Número de Registro</th><th>Tipo</th><th>Ámbito</th>";
+        thead.appendChild(headerRow);
+        tablaElement.appendChild(thead);
+  
+        const tbody = document.createElement("tbody");
+        for (const [nombre, simbolo] of Object.entries(this.tabla)) {
+          const row = document.createElement("tr");
+          row.innerHTML = `<td>${nombre}</td><td>${simbolo.numeroRegistro}</td><td>${simbolo.tipo}</td><td>${simbolo.ambito}</td>`;
+          tbody.appendChild(row);
+        }
+        tablaElement.appendChild(tbody);
+  
+        document.body.appendChild(tablaElement);
+      }
+    }
+  
+    // Función para procesar la entrada del usuario
+    function procesarEntrada() {
+      const entrada = document.getElementById("entrada").value;
+      const simbolos = entrada.match(/[a-zA-Z]+|[+\-*/%,()]/g); // Identificadores, operadores, comas y paréntesis
+  
+      let ambitoActual = "global"; // Variable para llevar el ámbito actual
+  
+      // Insertar los símbolos en la tabla de símbolos
+      simbolos.forEach((simbolo) => {
+        let tipo = null;
+        let ambito = null;
+  
+        // Determinar el tipo y ámbito de símbolo
+        if (/[a-zA-Z]+/.test(simbolo)) {
+          tipo = "Identificador";
+          ambito = ambitoActual;
+        } else if (/[+\-*/%,]/.test(simbolo)) {
+          tipo = "Operador";
+        } else if (/[(),]/.test(simbolo)) {
+          tipo = "Puntuación";
+        }
+  
+        tablaSimbolos.insert(simbolo, tipo, ambito);
+      });
+  
+      // Mostrar los símbolos encontrados
+      const simbolosElement = document.getElementById("simbolos");
+      simbolosElement.innerHTML = "";
+      simbolos.forEach((simbolo) => {
+        const li = document.createElement("li");
+        li.textContent = simbolo;
+        simbolosElement.appendChild(li);
+      });
+  
+      // Mostrar la tabla de símbolos completa
+      tablaSimbolos.mostrarTabla();
+    }
+  
+    // Función para buscar un símbolo en la tabla de símbolos
+    function buscarSimbolo() {
+      const nombre = document.getElementById("buscarNombre").value;
+      const simboloEncontrado = tablaSimbolos.lookup(nombre);
+  
+      // Mostrar las propiedades del símbolo encontrado
+      const propiedadesElement = document.getElementById("propiedades");
+      if (simboloEncontrado) {
+        propiedadesElement.textContent = `Número de Registro: ${simboloEncontrado.numeroRegistro}\nTipo: ${simboloEncontrado.tipo}\nÁmbito: ${simboloEncontrado.ambito}`;
+      } else {
+        propiedadesElement.textContent = "Símbolo no encontrado";
+      }
+    }
+  
+    // Crear una instancia de la tabla de símbolos
+    const tablaSimbolos = new TablaDeSimbolos();
+  </script>
+</body>
+</html>
